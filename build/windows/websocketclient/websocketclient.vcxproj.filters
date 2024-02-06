@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="源文件\platform">
+      <UniqueIdentifier>{407ba0f1-818a-4982-b3be-75d713491a48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\platform\net">
+      <UniqueIdentifier>{1260ec49-8ca2-4c08-ac88-31fa21c27a91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\platform\net\tls">
+      <UniqueIdentifier>{62d8f731-a299-4a63-9c67-dcaed84fb0e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\platform\net\tcp">
+      <UniqueIdentifier>{d912d15e-300f-41f4-a209-9df930379989}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\platform\datatype">
+      <UniqueIdentifier>{9b911d66-4135-4d31-9dde-97c993439b11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\platform\func">
+      <UniqueIdentifier>{6617db11-3951-4fec-8eb2-17424603840d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\platform\func\common">
+      <UniqueIdentifier>{10f4ef07-2fa5-4ad8-9ddc-e474a526095d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\platform\func\windows">
+      <UniqueIdentifier>{97d06d05-b1c7-4c52-992e-50fac951de45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\websocket">
+      <UniqueIdentifier>{59d0db16-02be-47ef-9d30-b254d3d3d1e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\websocket\protocol">
+      <UniqueIdentifier>{5193df7a-3a0a-41a3-ab1f-1969acb60354}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\components">
+      <UniqueIdentifier>{a32b786d-04ba-4860-bee1-293feb398b30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\components\http">
+      <UniqueIdentifier>{e9d31545-330d-408d-81fc-ee1c600c3aa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\components\crypto">
+      <UniqueIdentifier>{86ec3f17-879a-4a70-bdfb-6d0c0b8adf94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\components\crypto\base64">
+      <UniqueIdentifier>{93a53eae-1970-45bc-b89d-f3ffa5034221}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\components\crypto\sha1">
+      <UniqueIdentifier>{d83775f3-129c-4ab5-a40d-a6663bf570ca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\websocketclient.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\platform\net\tls\tls.cpp">
+      <Filter>源文件\platform\net\tls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\platform\func\common\funcCommon.cpp">
+      <Filter>源文件\platform\func\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\platform\func\windows\funcWin.cpp">
+      <Filter>源文件\platform\func\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\websocket\websock.cpp">
+      <Filter>源文件\websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\websocket\protocol\protocol.cpp">
+      <Filter>源文件\websocket\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\platform\net\tcp\tcp.cpp">
+      <Filter>源文件\platform\net\tcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\components\http\http.cpp">
+      <Filter>源文件\components\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\components\crypto\base64\base64.cpp">
+      <Filter>源文件\components\crypto\base64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\components\crypto\sha1\sha1.cpp">
+      <Filter>源文件\components\crypto\sha1</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\include\websocket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\platform\net\ISocket.h">
+      <Filter>源文件\platform\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\platform\datatype\datatype.h">
+      <Filter>源文件\platform\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\platform\net\tls\tls.h">
+      <Filter>源文件\platform\net\tls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\platform\func\common\funcCommon.h">
+      <Filter>源文件\platform\func\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\platform\func\windows\funcWin.h">
+      <Filter>源文件\platform\func\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\platform\datatype\internaldef.h">
+      <Filter>源文件\platform\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\websocket\websock.h">
+      <Filter>源文件\websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\websocket\protocol\protocol.h">
+      <Filter>源文件\websocket\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\platform\net\tcp\tcp.h">
+      <Filter>源文件\platform\net\tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\components\http\http.h">
+      <Filter>源文件\components\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\components\crypto\base64\base64.h">
+      <Filter>源文件\components\crypto\base64</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\components\crypto\sha1\sha1.h">
+      <Filter>源文件\components\crypto\sha1</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
