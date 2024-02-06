@@ -11,7 +11,11 @@ CTCP::CTCP()
 
 CTCP::~CTCP()
 {
-
+	if (-1 != m_sock && 0 != m_sock && 1 != m_sock && 2 != m_sock)
+	{
+		zh_closesocket(m_sock);
+		m_sock = -1;
+	}
 }
 
 zh_int32 CTCP::CreateSocket(zh_int32 family)

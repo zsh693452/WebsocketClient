@@ -37,6 +37,7 @@ private:
 	zh_uint32 m_payloadOffset;
 	zh_uint32 m_payloadBuffSize;
 	zh_void *m_userdata;
+	zh_bool m_bConntected;
 	WebsocketDataCallback m_cb;
 	
 };

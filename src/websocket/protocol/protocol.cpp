@@ -21,6 +21,7 @@ CProtocol::CProtocol(zh_int32 ssl, const zh_char *url, zh_ushort port, zh_int32 
 	else
 		m_isocket = new CTCP();
 
+
 	m_payloadCB = NULL;
 	m_userdata = NULL;
 
@@ -32,16 +33,16 @@ CProtocol::CProtocol(zh_int32 ssl, const zh_char *url, zh_ushort port, zh_int32 
 	m_recvBufSize = MAX_RECVBUF_SIZE;
 	memset(m_recvBuf, 0, m_recvBufSize);
 
-	m_quit = zh_true;
-	m_port = port;
-	m_family = family;
 	memset(m_url, 0, sizeof(m_url));
-
 	if (strlen(url) >= sizeof(m_url))
 		memcpy(m_url, url, sizeof(m_url) - 1);
 	else
 		strcpy(m_url, url);
 
+	m_hThreadRecv = NULL;
+	m_quit = zh_true;
+	m_port = port;
+	m_family = family;
 	m_isocket->CreateSocket(family);
 }
 
@@ -49,6 +50,8 @@ CProtocol::~CProtocol()
 {
 	if (NULL == m_isocket)
 	{
+		m_isocket->Close();
+
 		delete m_isocket;
 		m_isocket = NULL;
 	}
@@ -73,6 +76,8 @@ zh_int32 CProtocol::Connect(zh_int32 timeout)
 	zh_int32 rst = m_isocket->Connect(m_url, m_port, m_family, timeout);
 	if (ErrSockSuccess != rst)
 	{
+		m_isocket->Close();
+
 		if (ErrSockTimeout == rst)
 			return ResultTimeout;
 		
@@ -83,19 +88,35 @@ zh_int32 CProtocol::Connect(zh_int32 timeout)
 	zh_int32 time = static_cast<zh_int32>(endTick - startTick);
 
 	// send handshake
-	if (0 != Handshark())
+	if (0 != Handshake())
+	{
+		m_isocket->Close();
 		return ResultHandshakeFailed;
+	}
 
 	// recv data to check handshake result
-	if (0 == WaitHandshark(timeout - time))
+	if (0 == WaitHandshake(timeout - time))
 	{
 		StartRecv();
 		return ResultOK;
 	}
 
+	m_isocket->Close();
 	return ResultHandshakeFailed;
 }
 
+zh_void CProtocol::Disconnect()
+{
+	m_quit = zh_true;
+	if (NULL != m_hThreadRecv)
+	{
+		zh_WaitForSingleObject(m_hThreadRecv, zh_INFINITE);
+		zh_CloseHandle(m_hThreadRecv);
+		m_hThreadRecv = NULL;
+	}
+
+	m_isocket->Close();
+}
 
 IMPLEMENT_THREAD_FUNC(CProtocol, ThreadRecv, args)
 {
@@ -209,7 +230,7 @@ zh_int32 CProtocol::SendAll(zh_char *data, zh_int32 size, zh_int32 timeout)
 	return rst;
 }
 
-zh_int32 CProtocol::Handshark()
+zh_int32 CProtocol::Handshake()
 {
 	zh_uchar uuid[16] = {0};
 	if (0 == zh_GetUUID(uuid, sizeof(uuid)))
@@ -239,11 +260,11 @@ zh_int32 CProtocol::Handshark()
 	memset(m_base64Key, 0, sizeof(m_base64Key));
 	strcpy(m_base64Key, reinterpret_cast<zh_char *>(base64));
 
-	printf("handshark len=%d\n%s\n", strlen(buffer), buffer);
+	printf("handshake len=%d\n%s\n", strlen(buffer), buffer);
 	return SendAll(buffer, strlen(buffer), 1000 * 5);
 }
 
-zh_int32 CProtocol::WaitHandshark(zh_int32 timeout)
+zh_int32 CProtocol::WaitHandshake(zh_int32 timeout)
 {
 	char buffer[1024 * 4] = {0};
 	zh_int32 rst = 1;
@@ -266,6 +287,7 @@ zh_int32 CProtocol::WaitHandshark(zh_int32 timeout)
 		}
 		else if (ErrSockNoData == bytes) 
 		{
+			zh_sleep(20);
 			continue;
 		}
 
@@ -290,8 +312,9 @@ zh_int32 CProtocol::WaitHandshark(zh_int32 timeout)
 				break;
 			}
 
-			if (HandsharkSuccess(code, headers, size))
+			if (HandshakeSuccess(code, headers, size))
 			{
+				printf("handshake response\n%s\n", buffer);
 				rst = 0;
 				break;
 			}
@@ -301,7 +324,7 @@ zh_int32 CProtocol::WaitHandshark(zh_int32 timeout)
 	return rst;
 }
 
-zh_bool CProtocol::HandsharkSuccess(zh_int32 code, HTTP_HEADER *header, zh_int32 headerSize)
+zh_bool CProtocol::HandshakeSuccess(zh_int32 code, HTTP_HEADER *header, zh_int32 headerSize)
 {
 	// status code 
 	if (101 != code)

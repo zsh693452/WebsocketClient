@@ -15,11 +15,18 @@ int zhgetsockopt(int s, int level, int optname, char * optval, int * optlen);
 int zhioctlsocket(int s, long cmd, u_long * argp);
 
 void zhSleep(unsigned int ms);
-
-int zhCreateThread(unsigned int stackSize, unsigned int (__stdcall *thread_func)(void *), void *args, unsigned int *threadId);
-
 unsigned long long zhGetTickCount64();
 int zhGetUUID(unsigned char *buf, int bufsize);
+
+int zhCreateThread(unsigned int stackSize, unsigned int (__stdcall *thread_func)(void *), void *args, unsigned int *threadId);
+int zhWaitForSingleObject(HANDLE handle, unsigned int time);
+int zhCloseHandle(HANDLE handle);
+
+int zhInitMutex(CRITICAL_SECTION *cs);
+int zhLockMutex(CRITICAL_SECTION *cs);
+int zhUnlockMutex(CRITICAL_SECTION *cs);
+int zhReleaseMutex(CRITICAL_SECTION *cs);
+
 
 
 #endif

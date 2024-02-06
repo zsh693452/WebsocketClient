@@ -3,6 +3,16 @@
 
 #include "stdafx.h"
 #include "websocket.h"
+#include <signal.h>
+
+void *g_handle = NULL;
+
+void signal_callback_handler(int signum) {
+	printf("Caught signal %d\n", signum);
+	WS_Close(g_handle);
+	WS_Destroy(g_handle);
+}
+
 
 void Callback(char *data, int size, int op, void *userdata)
 {
@@ -14,29 +24,21 @@ void Callback(char *data, int size, int op, void *userdata)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	signal(SIGINT, signal_callback_handler);
+
 	WS_Init();
-	void *handle = WS_Create("120.25.223.112", 9001, FAMILY_IPV4, Callback, NULL);
-	//void *handle = WS_Create("152.70.181.45", 443, FAMILY_IPV4);
-	WS_RESULT rst = WS_Connect(handle, 1000 * 10);
+	g_handle = WS_Create("120.25.223.112", 9001, FAMILY_IPV4, Callback, NULL);
+	WS_RESULT rst = WS_Open(g_handle, 1000 * 10);
 	printf("connect rst=%d\n", rst);
 
-	
 	char sendstr[] = "{\"head\":{\"cmd\":1,\"role\":1,\"name\":\"123456\",\"remote\":\"\"}}";
-	int sendrst = WS_Send(handle, sendstr, strlen(sendstr), WS_DATA_TEXT, 1000 * 5);
+	int sendrst = WS_Send(g_handle, sendstr, strlen(sendstr), WS_DATA_TEXT, 1000 * 5);
 	printf("send rst=%d send %d bytes\n", sendrst, strlen(sendstr));
 
 
-	char maxsendstr[1024] = {0};
-	memset(maxsendstr, 'A', sizeof(maxsendstr) - 1);
-	maxsendstr[1020] = 'D';
-	maxsendstr[1021] = 'C';
-	maxsendstr[1022] = 'B';
-	sendrst = WS_Send(handle, maxsendstr, strlen(maxsendstr), 1000 * 5);
-	printf("send max rst=%d send %d bytes\n", sendrst, strlen(maxsendstr));
-	
-
-	Sleep(1000 * 600);
-	WS_Close(handle);
+	Sleep(1000 * 60 * 5);
+	WS_Close(g_handle);
+	WS_Destroy(g_handle);
 
 	return 0;
 }

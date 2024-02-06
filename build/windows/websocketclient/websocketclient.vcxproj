@@ -45,7 +45,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;WIN32_LEAN_AND_MEAN;_SSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../include;../../../src/components/crypto/sha1;../../../src/components/crypto/base64;../../../src/components/http;../../../src/platform/datatype;../../../src/platform/net;../../../src/platform/net/tcp;../../../src/platform/net/tls;../../../src/platform/func/common;../../../src/platform/func/windows;../../../src/websocket/protocol;../../../src/websocket;../../../dependence/openssl;../../../dependence/openssl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include;../../../src/components/crypto/sha1;../../../src/components/crypto/base64;../../../src/components/http;../../../src/components/lock;../../../src/platform/datatype;../../../src/platform/net;../../../src/platform/net/tcp;../../../src/platform/net/tls;../../../src/platform/func/common;../../../src/platform/func/windows;../../../src/websocket/protocol;../../../src/websocket;../../../dependence/openssl;../../../dependence/openssl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -83,6 +83,8 @@
     <ClCompile Include="..\..\..\src\components\crypto\base64\base64.cpp" />
     <ClCompile Include="..\..\..\src\components\crypto\sha1\sha1.cpp" />
     <ClCompile Include="..\..\..\src\components\http\http.cpp" />
+    <ClCompile Include="..\..\..\src\components\lock\autolock.cpp" />
+    <ClCompile Include="..\..\..\src\components\lock\lock.cpp" />
     <ClCompile Include="..\..\..\src\platform\func\common\funcCommon.cpp" />
     <ClCompile Include="..\..\..\src\platform\func\windows\funcWin.cpp" />
     <ClCompile Include="..\..\..\src\platform\net\tcp\tcp.cpp" />
@@ -96,6 +98,8 @@
     <ClInclude Include="..\..\..\src\components\crypto\base64\base64.h" />
     <ClInclude Include="..\..\..\src\components\crypto\sha1\sha1.h" />
     <ClInclude Include="..\..\..\src\components\http\http.h" />
+    <ClInclude Include="..\..\..\src\components\lock\autolock.h" />
+    <ClInclude Include="..\..\..\src\components\lock\lock.h" />
     <ClInclude Include="..\..\..\src\platform\datatype\datatype.h" />
     <ClInclude Include="..\..\..\src\platform\datatype\internaldef.h" />
     <ClInclude Include="..\..\..\src\platform\func\common\funcCommon.h" />

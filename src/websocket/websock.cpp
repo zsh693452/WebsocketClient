@@ -16,6 +16,7 @@ CWebsocket::CWebsocket(const zh_char *url, zh_ushort port, zh_int32 family)
 	zh_int32 ssl = 0;
 #endif
 
+	m_bConntected = zh_false;
 	m_protocol = new CProtocol(ssl, url, port, family);
 	m_protocol->SetPayloadCB(CWebsocket::PayloadCB, this);
 
@@ -54,12 +55,14 @@ zh_int32 CWebsocket::Connect(zh_int32 timeout)
 		return WebsocketResult_Failed;
 	}
 
+	m_bConntected = zh_true;
 	return WebsocketResult_OK;
 }
 
 zh_void CWebsocket::Close()
 {
-	
+	m_protocol->Disconnect();
+	m_bConntected = zh_false;
 }
 
 zh_int32 CWebsocket::Send(const zh_char *data, zh_int32 size, zh_int32 op, zh_int32 timeout)

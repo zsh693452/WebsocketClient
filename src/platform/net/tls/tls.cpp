@@ -3,6 +3,7 @@
 #include "internaldef.h"
 #include "openssl/ssl.h"
 #include "openssl/err.h"
+#include "autolock.h"
 
 CTLS::CTLS()
 {
@@ -20,7 +21,23 @@ CTLS::CTLS()
 
 CTLS::~CTLS()
 {
+	if (-1 != m_sock && 0 != m_sock && 1 != m_sock && 2 != m_sock)
+	{
+		zh_closesocket(m_sock);
+		m_sock = -1;
+	}
 
+	if (NULL != m_ssl)
+	{
+		SSL_free(static_cast<SSL *>(m_ssl));
+		m_ssl = NULL;
+	}
+
+	if (NULL != m_ctx)
+	{
+		SSL_CTX_free(static_cast<SSL_CTX *>(m_ctx));
+		m_ctx = NULL;
+	}
 }
 
 zh_int32 CTLS::CreateSocket(zh_int32 family)
@@ -72,18 +89,21 @@ zh_int32 CTLS::Close()
 {
 	if (-1 != m_sock && 0 != m_sock && 1 != m_sock && 2 != m_sock)
 	{
+		LOGI("CTLS close sock=%d\n", m_sock);
 		zh_closesocket(m_sock);
 		m_sock = -1;
 	}
 
 	if (NULL != m_ssl)
 	{
+		LOGI("CTLS free ssl=%p\n", m_ssl);
 		SSL_free(static_cast<SSL *>(m_ssl));
 		m_ssl = NULL;
 	}
 	
 	if (NULL != m_ctx)
 	{
+		LOGI("CTLS free ssl ctx=%p\n", m_ctx);
 		SSL_CTX_free(static_cast<SSL_CTX *>(m_ctx));
 		m_ctx = NULL;
 	}

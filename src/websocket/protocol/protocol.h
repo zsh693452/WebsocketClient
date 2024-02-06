@@ -4,6 +4,7 @@
 #include "datatype.h"
 #include "ISocket.h"
 #include "http.h"
+#include "funcCommon.h"
 
 typedef zh_void (*PayloadCallback)(zh_char *payload, zh_uint32 size, zh_int32 fin, zh_int32 op, zh_void *userdata);
 
@@ -56,6 +57,7 @@ public:
 
 	zh_void SetPayloadCB(PayloadCallback cb, zh_void *userdata);
 	zh_int32 Connect(zh_int32 timeout);
+	zh_void Disconnect();
 	zh_int32 SendFrame(const zh_char *data, zh_uint32 size, Opcode op, zh_int32 fin, zh_int32 timeout);
 	zh_int32 SendPing(const zh_char *data, zh_uint32 size, zh_int32 timeout);
 
@@ -65,9 +67,9 @@ protected:
 	zh_void StartRecv();
 	zh_int32 SendAll(zh_char *data, zh_int32 size, zh_int32 timeout);
 
-	zh_int32 Handshark();
-	zh_int32 WaitHandshark(zh_int32 timeout);
-	zh_bool HandsharkSuccess(zh_int32 code, HTTP_HEADER *header, zh_int32 headerSize);
+	zh_int32 Handshake();
+	zh_int32 WaitHandshake(zh_int32 timeout);
+	zh_bool HandshakeSuccess(zh_int32 code, HTTP_HEADER *header, zh_int32 headerSize);
 	zh_int32 SecWebSocketAccept(const zh_char *key, zh_int32 KeySize, zh_char *value, zh_int32 valueSize);
 	zh_bool FrameCompleted(zh_char *data, zh_uint32 size, zh_int32 *fin, zh_int32 *opcode, zh_int32 *maskKey, zh_uint32 *payloadLen, zh_uint32 *payloadOffset);
 	
@@ -87,6 +89,7 @@ private:
 	zh_uint32 m_recvBufSize;
 	PayloadCallback m_payloadCB;
 	zh_void *m_userdata;
+	zh_thread_handle m_hThreadRecv;
 };
 
 #endif

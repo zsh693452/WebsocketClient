@@ -34,8 +34,8 @@ extern "C" {
 #endif
 	void WSAPI WS_Init();
 	void * WSAPI WS_Create(const char *url, unsigned short port, WS_FAMILY family, WSDataCallback cb, void *cbUsrData);
-	void * WSAPI WS_Destroy();
-	WS_RESULT WSAPI WS_Connect(void *handle, int timeout);
+	void WSAPI WS_Destroy(void *handle);
+	WS_RESULT WSAPI WS_Open(void *handle, int timeout);
 	void WSAPI WS_Close(void *handle);
 	int WSAPI WS_Send(void *handle, char *data, int size, WS_DATA_TYPE type, int timeout);
 

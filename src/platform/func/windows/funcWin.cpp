@@ -37,6 +37,17 @@ int zhCreateThread(unsigned int stackSize, unsigned int (__stdcall *thread_func)
 	return _beginthreadex(NULL, stackSize, thread_func, args, 0, threadId);
 }
 
+int zhWaitForSingleObject(HANDLE handle, unsigned int time)
+{
+	return WaitForSingleObject(handle, time);
+}
+
+int zhCloseHandle(HANDLE handle)
+{
+	CloseHandle(handle);
+	return 0;
+}
+
 unsigned long long zhGetTickCount64()
 {
 	return GetTickCount64();
@@ -61,3 +72,28 @@ void zhSleep(unsigned int ms)
 {
 	Sleep(ms);
 }
+
+int zhInitMutex(CRITICAL_SECTION *cs)
+{
+	InitializeCriticalSection(cs);
+	return 0;
+}
+
+int zhLockMutex(CRITICAL_SECTION *cs)
+{
+	EnterCriticalSection(cs);
+	return 0;
+}
+
+int zhUnlockMutex(CRITICAL_SECTION *cs)
+{
+	LeaveCriticalSection(cs);
+	return 0;
+}
+
+int zhReleaseMutex(CRITICAL_SECTION *cs)
+{
+	DeleteCriticalSection(cs);
+	return 0;
+}
+

@@ -1,7 +1,7 @@
 #ifndef _DATATYPE_H_939DA2ED7B88490FAC3520CC44A78FF7
 #define _DATATYPE_H_939DA2ED7B88490FAC3520CC44A78FF7
 
-
+// base type
 #define zh_int32 int
 #define zh_uint32 unsigned int
 #define zh_char char
@@ -15,7 +15,6 @@
 #define zh_true true
 #define zh_false false
 
-
 #ifdef _WIN32
 	#include <WinSock2.h>
 	#include <stdio.h>
@@ -27,6 +26,9 @@
 #ifdef _WIN32
 	#define sockaddr_in sockaddr_in
 	#define sockaddr sockaddr
+	#define zh_mutex CRITICAL_SECTION
+	#define zh_thread_handle HANDLE
+	#define zh_INFINITE INFINITE
 #endif
 
 
