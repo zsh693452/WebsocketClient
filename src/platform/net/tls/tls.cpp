@@ -5,18 +5,13 @@
 #include "openssl/err.h"
 #include "autolock.h"
 
-CTLS::CTLS()
+CTLS::CTLS(zh_mutex *mutex)
 {
-	SSL_library_init();
-	OpenSSL_add_all_algorithms();
-	ERR_load_crypto_strings();
-	SSL_load_error_strings();
-
-	SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
-	SSL *ssl = SSL_new(ctx);
-	m_ctx = static_cast<void *>(ctx);
-	m_ssl = static_cast<void *>(ssl);
+	SSLInit();
 	m_sock = -1;
+	m_bReadable = zh_true;
+	m_bWritable = zh_true;
+	m_mutex = mutex;
 }
 
 CTLS::~CTLS()
@@ -38,6 +33,19 @@ CTLS::~CTLS()
 		SSL_CTX_free(static_cast<SSL_CTX *>(m_ctx));
 		m_ctx = NULL;
 	}
+}
+
+zh_void CTLS::SSLInit()
+{
+	SSL_library_init();
+	OpenSSL_add_all_algorithms();
+	ERR_load_crypto_strings();
+	SSL_load_error_strings();
+
+	SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
+	SSL *ssl = SSL_new(ctx);
+	m_ctx = static_cast<void *>(ctx);
+	m_ssl = static_cast<void *>(ssl);
 }
 
 zh_int32 CTLS::CreateSocket(zh_int32 family)
@@ -181,7 +189,24 @@ zh_int32 CTLS::Send(zh_char *data, zh_int32 size)
 			return ErrSockNoData;
 		}
 
-		return SSL_write(static_cast<SSL *>(m_ssl), data, size);
+		CAutoLock lock(m_mutex);
+
+		if (!m_bWritable)
+			return ErrSockNoData;
+
+		zh_int32 bytes = SSL_write(static_cast<SSL *>(m_ssl), data, size);
+		if (bytes <= 0)
+		{
+			zh_int32 errcode = SSL_get_error(static_cast<SSL *>(m_ssl), bytes);
+			if (SSL_ERROR_WANT_READ == errcode || SSL_ERROR_WANT_WRITE == errcode)
+			{
+				m_bReadable = zh_false;
+				return ErrSockNoData;
+			}
+		}
+		
+		m_bReadable = zh_true;
+		return bytes;
 	}
 	else if (0 == rst)
 	{
@@ -206,23 +231,32 @@ zh_int32 CTLS::Recv(zh_char *data, zh_int32 size)
 	zh_int32 rst = select(m_sock + 1, &m_fdr, NULL, NULL, &tv);
 	if(rst > 0) 
 	{
+		CAutoLock lock(m_mutex);
+
+		if (!m_bReadable)
+			return ErrSockNoData;
+
 		zh_int32 bytes = SSL_read(static_cast<SSL *>(m_ssl), data, size);
 		if (bytes <= 0) 
 		{
 			zh_int32 errcode = SSL_get_error(static_cast<SSL *>(m_ssl), bytes);
-			if (SSL_ERROR_WANT_READ == errcode)
+			if (SSL_ERROR_WANT_READ == errcode || SSL_ERROR_WANT_WRITE == errcode)
 			{
+				m_bWritable = zh_false;
 				return ErrSockNoData;	
 			}
 			else if (SSL_ERROR_ZERO_RETURN == errcode)
 			{
+				m_bWritable = zh_true;
 				return ErrSockClose;
 			}
 
+			m_bWritable = zh_true;
 			printf("recv errcode=%d errno=%d\n", errcode, errno);
 			return ErrSockUnknown;
 		}
 
+		m_bWritable = zh_true;
 		return bytes;
 	}
 	else if (rst < 0) 

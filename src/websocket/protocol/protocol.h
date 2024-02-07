@@ -51,7 +51,6 @@ typedef enum
 class CProtocol
 {
 public:
-	CProtocol();
 	CProtocol(zh_int32 ssl, const zh_char *url, zh_ushort port, zh_int32 family);
 	~CProtocol();
 
@@ -73,7 +72,9 @@ protected:
 	zh_int32 SecWebSocketAccept(const zh_char *key, zh_int32 KeySize, zh_char *value, zh_int32 valueSize);
 	zh_bool FrameCompleted(zh_char *data, zh_uint32 size, zh_int32 *fin, zh_int32 *opcode, zh_int32 *maskKey, zh_uint32 *payloadLen, zh_uint32 *payloadOffset);
 	
-	
+private:
+	zh_void BufferAlloc();
+	zh_void BufferFree();
 
 private:
 	ISocket *m_isocket;
@@ -90,6 +91,7 @@ private:
 	PayloadCallback m_payloadCB;
 	zh_void *m_userdata;
 	zh_thread_handle m_hThreadRecv;
+	zh_mutex m_netMutex;
 };
 
 #endif

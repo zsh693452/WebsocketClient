@@ -9,36 +9,25 @@
 
 #define MAX_RECVBUF_SIZE 1024 * 1024
 
-CProtocol::CProtocol()
-{
-
-}
 
 CProtocol::CProtocol(zh_int32 ssl, const zh_char *url, zh_ushort port, zh_int32 family)
 {
+	zh_InitMutex(&m_netMutex);
+
 	if (1 == ssl)
-		m_isocket = new CTLS();
+		m_isocket = new CTLS(&m_netMutex);
 	else
 		m_isocket = new CTCP();
 
-
-	m_payloadCB = NULL;
-	m_userdata = NULL;
-
-	m_sendBuf = new zh_char[MAX_SEND_BUFF];
-	m_sendBufSize = MAX_SEND_BUFF;
-	memset(m_sendBuf, 0, m_sendBufSize);
-
-	m_recvBuf = new zh_char[MAX_RECVBUF_SIZE];
-	m_recvBufSize = MAX_RECVBUF_SIZE;
-	memset(m_recvBuf, 0, m_recvBufSize);
-
+	BufferAlloc();
 	memset(m_url, 0, sizeof(m_url));
 	if (strlen(url) >= sizeof(m_url))
 		memcpy(m_url, url, sizeof(m_url) - 1);
 	else
 		strcpy(m_url, url);
 
+	m_payloadCB = NULL;
+	m_userdata = NULL;
 	m_hThreadRecv = NULL;
 	m_quit = zh_true;
 	m_port = port;
@@ -48,6 +37,8 @@ CProtocol::CProtocol(zh_int32 ssl, const zh_char *url, zh_ushort port, zh_int32 
 
 CProtocol::~CProtocol()
 {
+	Disconnect();
+
 	if (NULL == m_isocket)
 	{
 		m_isocket->Close();
@@ -56,6 +47,24 @@ CProtocol::~CProtocol()
 		m_isocket = NULL;
 	}
 
+	BufferFree();
+
+	zh_ReleaseMutex(&m_netMutex);
+}
+
+zh_void CProtocol::BufferAlloc()
+{
+	m_sendBuf = new zh_char[MAX_SEND_BUFF];
+	m_sendBufSize = MAX_SEND_BUFF;
+	memset(m_sendBuf, 0, m_sendBufSize);
+
+	m_recvBuf = new zh_char[MAX_RECVBUF_SIZE];
+	m_recvBufSize = MAX_RECVBUF_SIZE;
+	memset(m_recvBuf, 0, m_recvBufSize);
+}
+
+zh_void CProtocol::BufferFree()
+{
 	if (NULL != m_sendBuf)
 	{
 		delete[] m_sendBuf;
