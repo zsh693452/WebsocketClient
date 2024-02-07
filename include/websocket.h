@@ -28,6 +28,7 @@ typedef enum
 }WS_DATA_TYPE;
 
 typedef void (*WSDataCallback)(char *data, int size, int op, void *userdata);
+typedef void (*WSDisconnectCallback)(void *userdata);
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,6 +39,7 @@ extern "C" {
 	WS_RESULT WSAPI WS_Open(void *handle, int timeout);
 	void WSAPI WS_Close(void *handle);
 	int WSAPI WS_Send(void *handle, char *data, int size, WS_DATA_TYPE type, int timeout);
+	void WSAPI WS_SetDisconnectCB(void *handle, WSDisconnectCallback cb, void *cbUserData);
 
 #ifdef __cplusplus
 }

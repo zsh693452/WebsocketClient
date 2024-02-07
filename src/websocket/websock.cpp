@@ -25,8 +25,8 @@ CWebsocket::CWebsocket(const zh_char *url, zh_ushort port, zh_int32 family)
 	m_payloadBuff = new zh_char[MAX_PAYLOAD_BUFF_SIZE];
 	memset(m_payloadBuff, 0, m_payloadBuffSize);
 
-	m_userdata = NULL;
-	m_cb = NULL;
+	m_payloadUserdata = NULL;
+	m_payloadCB = NULL;
 }
 
 CWebsocket::~CWebsocket()
@@ -108,16 +108,21 @@ zh_void CWebsocket::PayloadCB(zh_char *payload, zh_uint32 size, zh_int32 fin, zh
 	if (1 == fin)
 	{
 		// callback
-		if (NULL != p->m_cb)
+		if (NULL != p->m_payloadCB)
 		{
-			p->m_cb(p->m_payloadBuff, p->m_payloadOffset, op, p->m_userdata);
+			p->m_payloadCB(p->m_payloadBuff, p->m_payloadOffset, op, p->m_payloadUserdata);
 			p->m_payloadOffset = 0;
 		}
 	}
 }
 
-zh_void CWebsocket::SetCallback(WebsocketDataCallback cb, zh_void *userdata)
+zh_void CWebsocket::SetCallbackPayload(WebsocketDataCallback cb, zh_void *userdata)
 {
-	m_cb = cb;
-	m_userdata = userdata;
+	m_payloadCB = cb;
+	m_payloadUserdata = userdata;
+}
+
+zh_void CWebsocket::SetCallbackDisconnect(WebsocketDisconnectCallback cb, zh_void *userdata)
+{
+	m_protocol->SetDisconnectCB(cb, userdata);
 }

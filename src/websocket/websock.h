@@ -16,6 +16,7 @@ typedef enum
 } WebsocketResult;
 
 typedef zh_void (*WebsocketDataCallback)(zh_char *data, zh_int32 size, zh_int32 op, zh_void *userdata);
+typedef zh_void (*WebsocketDisconnectCallback)(zh_void *userdata);
 
 class CWebsocket
 {
@@ -27,7 +28,9 @@ public:
 	zh_int32 Connect(zh_int32 timeout);
 	zh_void Close();
 	zh_int32 Send(const zh_char *data, zh_int32 size, zh_int32 op, zh_int32 timeout);
-	zh_void SetCallback(WebsocketDataCallback cb, zh_void *userdata);
+
+	zh_void SetCallbackPayload(WebsocketDataCallback cb, zh_void *userdata);
+	zh_void SetCallbackDisconnect(WebsocketDisconnectCallback cb, zh_void *userdata);
 
 	static zh_void PayloadCB(zh_char *payload, zh_uint32 size, zh_int32 fin, zh_int32 op, zh_void *userdata);
 
@@ -36,10 +39,9 @@ private:
 	zh_char *m_payloadBuff;
 	zh_uint32 m_payloadOffset;
 	zh_uint32 m_payloadBuffSize;
-	zh_void *m_userdata;
+	zh_void *m_payloadUserdata;
 	zh_bool m_bConntected;
-	WebsocketDataCallback m_cb;
-	
+	WebsocketDataCallback m_payloadCB;
 };
 
 #endif

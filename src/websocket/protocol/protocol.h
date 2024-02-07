@@ -7,6 +7,7 @@
 #include "funcCommon.h"
 
 typedef zh_void (*PayloadCallback)(zh_char *payload, zh_uint32 size, zh_int32 fin, zh_int32 op, zh_void *userdata);
+typedef zh_void (*DisconnectCallback)(void *userdata);
 
 #define URL_LEN 512
 #define MAX_SEND_BUFF 1024
@@ -48,6 +49,14 @@ typedef enum
 	ResultExceedMax = 4
 } Result;
 
+
+typedef enum
+{
+	ReasonPeerClose = 1,
+	ReasonUsrQuit = 2,
+	ReasonUnknown = 3
+} ThreadQuitReason;
+
 class CProtocol
 {
 public:
@@ -55,6 +64,8 @@ public:
 	~CProtocol();
 
 	zh_void SetPayloadCB(PayloadCallback cb, zh_void *userdata);
+	zh_void SetDisconnectCB(DisconnectCallback cb, zh_void *userdata);
+
 	zh_int32 Connect(zh_int32 timeout);
 	zh_void Disconnect();
 	zh_int32 SendFrame(const zh_char *data, zh_uint32 size, Opcode op, zh_int32 fin, zh_int32 timeout);
@@ -62,7 +73,7 @@ public:
 
 protected:
 	static DECLARE_THREAD_FUNC(ThreadRecv, args);
-	zh_void Recving();
+	zh_int32 Recving();
 	zh_void StartRecv();
 	zh_int32 SendAll(zh_char *data, zh_int32 size, zh_int32 timeout);
 
@@ -89,7 +100,9 @@ private:
 	zh_char *m_recvBuf;
 	zh_uint32 m_recvBufSize;
 	PayloadCallback m_payloadCB;
-	zh_void *m_userdata;
+	DisconnectCallback m_disconnectCB;
+	zh_void *m_payloadUserdata;
+	zh_void *m_disconnectUserdata;
 	zh_thread_handle m_hThreadRecv;
 	zh_mutex m_netMutex;
 };

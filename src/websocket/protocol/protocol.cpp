@@ -27,7 +27,9 @@ CProtocol::CProtocol(zh_int32 ssl, const zh_char *url, zh_ushort port, zh_int32 
 		strcpy(m_url, url);
 
 	m_payloadCB = NULL;
-	m_userdata = NULL;
+	m_disconnectCB = NULL;
+	m_payloadUserdata = NULL;
+	m_disconnectUserdata = NULL;
 	m_hThreadRecv = NULL;
 	m_quit = zh_true;
 	m_port = port;
@@ -130,7 +132,10 @@ zh_void CProtocol::Disconnect()
 IMPLEMENT_THREAD_FUNC(CProtocol, ThreadRecv, args)
 {
 	CProtocol *ws = static_cast<CProtocol *>(args);
-	ws->Recving();
+	zh_int32 reason = ws->Recving();
+	if (ws->m_disconnectCB) 
+		ws->m_disconnectCB(ws->m_disconnectUserdata);
+	
 	return 0;
 }
 
@@ -141,11 +146,12 @@ zh_void CProtocol::StartRecv()
 	zh_CreateThread(0, ThreadRecv, this, &threadid);
 }
 
-zh_void CProtocol::Recving()
+zh_int32 CProtocol::Recving()
 {
 	zh_char buffer[1024 * 4] = {0};
 	zh_uint32 offset = 0;
 	zh_uint64 pingTick = 0;
+	zh_int32 quitReason = ReasonUsrQuit;
 	const zh_char *ping = "zsh_software_ping";
 	const zh_uint64 pingTimeout = 1000 * 30;
 
@@ -161,6 +167,7 @@ zh_void CProtocol::Recving()
 		zh_int32 bytes = this->m_isocket->Recv(buffer, sizeof(buffer));
 		if (ErrSockClose == bytes || ErrSockUnknown == bytes || ErrSockFail == bytes)
 		{
+			quitReason = ReasonPeerClose;
 			break;
 		}
 		else if (ErrSockNoData == bytes)
@@ -193,13 +200,15 @@ zh_void CProtocol::Recving()
 
 			if (NULL != m_payloadCB)
 			{
-				m_payloadCB(m_recvBuf + payloadOffset, payloadLen, fin, op, m_userdata);
+				m_payloadCB(m_recvBuf + payloadOffset, payloadLen, fin, op, m_payloadUserdata);
 			}
 		}
 	}
 
 	m_quit = zh_true;
 	LOGE("thread quit!\n");
+
+	return quitReason;
 }
 
 zh_int32 CProtocol::SendAll(zh_char *data, zh_int32 size, zh_int32 timeout)
@@ -433,7 +442,13 @@ zh_bool CProtocol::FrameCompleted(zh_char *data, zh_uint32 size, zh_int32 *fin, 
 zh_void CProtocol::SetPayloadCB(PayloadCallback cb, zh_void *userdata)
 {
 	m_payloadCB = cb;
-	m_userdata = userdata;
+	m_payloadUserdata = userdata;
+}
+
+zh_void CProtocol::SetDisconnectCB(DisconnectCallback cb, zh_void *userdata)
+{
+	m_disconnectCB = cb;
+	m_disconnectUserdata = userdata;
 }
 
 zh_int32 CProtocol::SendFrame(const zh_char *data, zh_uint32 size, Opcode op, zh_int32 fin, zh_int32 timeout)

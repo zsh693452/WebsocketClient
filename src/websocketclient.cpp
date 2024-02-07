@@ -56,7 +56,7 @@ void * WSAPI WS_Create(const char *url, unsigned short port, WS_FAMILY family, W
 {
 	CAutoLock lock(&g_apimutex);
 	CWebsocket *ws = new CWebsocket(url, port, FAMILY_IPV4 == family ? AF_INET : AF_INET6);
-	ws->SetCallback(cb, cbUsrData);
+	ws->SetCallbackPayload(cb, cbUsrData);
 	return static_cast<void *>(ws);
 }
 
@@ -99,4 +99,14 @@ int WSAPI WS_Send(void *handle, char *data, int size, WS_DATA_TYPE type, int tim
 	CAutoLock lock(&g_apimutex);
 	CWebsocket *ws = static_cast<CWebsocket *>(handle);
 	return ws->Send(data, size, type, timeout);
+}
+
+void WSAPI WS_SetDisconnectCB(void *handle, WSDisconnectCallback cb, void *cbUserData)
+{
+	if (NULL == handle)
+		return;
+
+	CAutoLock lock(&g_apimutex);
+	CWebsocket *ws = static_cast<CWebsocket *>(handle);
+	ws->SetCallbackDisconnect(cb, cbUserData);
 }

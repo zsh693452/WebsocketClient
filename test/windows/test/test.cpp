@@ -29,7 +29,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	WS_Init();
 	g_handle = WS_Create("120.25.223.112", 9001, FAMILY_IPV4, Callback, NULL);
 	WS_RESULT rst = WS_Open(g_handle, 1000 * 10);
-	printf("connect rst=%d\n", rst);
+	printf("websocket connect rst = %d\n", rst);
+
+	if (WS_OK != rst)
+	{
+		WS_Close(g_handle);
+		WS_Destroy(g_handle);
+		return 0;
+	}
 
 	char sendstr[] = "{\"head\":{\"cmd\":1,\"role\":1,\"name\":\"123456\",\"remote\":\"\"}}";
 	int sendrst = WS_Send(g_handle, sendstr, strlen(sendstr), WS_DATA_TEXT, 1000 * 5);
